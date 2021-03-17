@@ -1,0 +1,29 @@
+name: Build and Test app
+on: 
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ['macos-latest']
+    
+    env:
+      XC_VERSION: '12.4'
+      XC_WORKSPACE: 'Wave.xcworkspace'
+      XC_SCHEME: 'Wave'
+      CONFIGURATION: 'Debug'
+      
+    steps:
+    - name: Check cocoapods repo
+      run: pod repo
+
+    - name: Select latest Xcode
+      run: "sudo xcode-select -s /Applications/Xcode_$XC_VERSION.app"
+      
+    - uses: actions/checkout@v2
+        
+    - name: Pod install
+      run: pod install --no-repo-update
+      
+    - name: Build
+      run: xcodebuild -workspace "$XC_WORKSPACE" -scheme "$XC_SCHEME" -configuration "$CONFIGURATION" -arch x86_64 build | xcpretty
